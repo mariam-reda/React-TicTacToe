@@ -87,12 +87,15 @@ function Board({ xIsNext, squares, onPlay }) {
 //-controls Board (lifted-up state); updates squares + keeps history, and manages X/O turns 
 //main function of file (default) accessible outside file (exported)
 export default function Game() {
+    
     //history - state variable array of game past moves (array of arrays)
     const [history, setHistory] = useState( [Array(9).fill(null)] );
     //state variable to track X/O turn - first move is 'X' by default
     const [xIsNext, setXIsNext] = useState(true);
-    //currentSquares - variable array of squares for the current move (last squares array in history) - NOT state var
-    const currentSquares = history[history.length-1];
+    //currentMove - state variable tracking which step (move) the user is currently viewing
+    const [currentMove, setCurrentMove] = useState(0); 
+    //currentSquares - array of squares displayed for the current move (based on viewed move, not nec. last squares array in history) - NOT state var
+    const currentSquares = history[currentMove];
 
 
     //---
@@ -101,15 +104,22 @@ export default function Game() {
     //-receives nextSquares (updated board array) from Board call
     function handlePlay(nextSquares) {
         //update history state variable w/ new squares array
-        setHistory( [...history, nextSquares] );    //creates new array containing all items in history + appends nextSquares (spread syntax)
+        //only keep history up until currentMoves view (in case jumped back to previous move and changed play)
+        const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];  //creates new array containing all items in history up to currentMove + appends nextSquares (spread syntax)
+        setHistory(nextHistory);    
+        //update currentMove state variable to next value from *new* history (in case jumped back and changed)
+        setCurrentMove(nextHistory.length - 1);
         //update X/O next turn state variable (flip boolean)
         setXIsNext(!xIsNext);
     }
 
     //---
-    //jumpTo() - function to jump to (previous) moves in game history
+    //jumpTo() - function to jump to (previous) moves in game history - dont by updating currentMove state variable
     function jumpTo(nextMove) {
-        //... jump to move passed ...
+        //update currentMove state variable to update move currently viewed
+        setCurrentMove(nextMove);
+        //make sure X/O turn is correct - since X always first ('next' on move 0), then X is next turn on every even move
+        setXIsNext( nextMove % 2 == 0 );    //if nextMove is even, X is next
     }
     
     //---
