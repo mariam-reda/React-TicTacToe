@@ -132,11 +132,22 @@ export default function Game() {
         } else {
             description = "Go to game start";
         }
+
+        //for current move only, display "You are at move #.." instead of a button
+        let listedMove;
+        if (move == currentMove) {          //current move - return text, no button
+            listedMove = <div> {"You are at move #" + move} </div>
+        }
+        else {                              //not current move - return button w/ onClick to jump to move
+            listedMove = <button onClick={() => jumpTo(move)}> {description} </button>;
+        }
+
         //return listed button element w/ jump onclick handler (w/ unique key property for each child in React list = move's unique sequence no.)
         //--moves will never be re-ordered, deleted, or inserted in middle => safe to use move index as key
         return (
             <li key={move}>
-                <button onClick={() => jumpTo(move)}> {description} </button>
+                {/* <button onClick={() => jumpTo(move)}> {description} </button> */}
+                {listedMove}
             </li>
        );
     }
