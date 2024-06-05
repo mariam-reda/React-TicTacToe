@@ -1,27 +1,37 @@
 // App - React component
-//uses JSX elements (<button>) = JS + HTML tags combo
+//JS file, uses JSX elements (<button>) = JS + HTML tags combo
+//-components use prop className to style through CSS file
 
 
-//Board - function defined to return 9 square buttons labeled with numbers, w/ prop className to style buttons through CSS
+//Square - component function; defined to return single board square button (reusable component - avoids duplicated code)
+//-uses props to pass child's value from parent component (Board)
+function Square({ value }) {
+    return (
+        <button className="square"> {value} </button>
+    );
+}
+
+
+//Board - component function defined to build tictactoe board using Square components
 //-returns single JSX element, wrapped using Fragment (<>...</>)
 //main function of file (default) accessible outside file (exported)
 export default function Board() {
     return (
     <>
         <div className="board-row">
-            <button className="square"> 1 </button>
-            <button className="square"> 2 </button>
-            <button className="square"> 3 </button>
+            <Square value="1" />
+            <Square value="2" />
+            <Square value="3" />
         </div>
         <div className="board-row">
-            <button className="square"> 4 </button>
-            <button className="square"> 5 </button>
-            <button className="square"> 6 </button>
+            <Square value="4" />
+            <Square value="5" />
+            <Square value="6" />
         </div>
         <div className="board-row">
-            <button className="square"> 7 </button>
-            <button className="square"> 8 </button>
-            <button className="square"> 9 </button>
+            <Square value="7" />
+            <Square value="8" />
+            <Square value="9" />
         </div>
     </>
     );
