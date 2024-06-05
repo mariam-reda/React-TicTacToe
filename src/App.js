@@ -18,22 +18,22 @@ function Square({ value, onSquareClick }) {
 //----
 
 
-//Board - component function defined to build tictactoe board using Square components
-//-parent component manages state of all square components through passed props => lifted state from child to parent
+//Board - component function defined to build TicTacToe board using Square components
+//-parent component (Board) manages state of all Square components through passed props => lifted state from child to parent
 //-Game component manages state of game (Board's parent) through passed props {xIsNext, squares, onPlay}
 //-returns single JSX element, wrapped using Fragment (<>...</>)
 function Board({ xIsNext, squares, onPlay }) {
 
     //---
-    //handleClick() - function to handle click of Squares by updating squares array (state variable) based on clicked square
-    //-React re-renders Board when button is clicked, with new value 'X' displayed in clicked square
+    //handleClick() - function to handle click of Squares by updating squares array (state variable in Game) based on clicked square
+    //-React re-renders Board when button is clicked, with new value 'X'/'O' displayed in clicked square
     function handleClick(i) {
-        //check if square already has value (to avoid overwriting => return w/o update/changing turn) or if someone already won
+        //check if square already has value (to avoid overwriting => return w/o update/changing turn) or if someone already won (game ended)
         if (squares[i] || calculateWinner(squares)) {
             return;
         }
         //otherwise, update empty square's value
-        const nextSquares = squares.slice();    //creates copy of squares array (for immutable approach)
+        const nextSquares = squares.slice();        //creates copy of squares array (for immutable approach)
         //set value of square based on X/O turn
         if (xIsNext) {
             nextSquares[i] = "X";
@@ -88,14 +88,14 @@ function Board({ xIsNext, squares, onPlay }) {
 //main function of file (default) accessible outside file (exported)
 export default function Game() {
     
-    //history - state variable array of game past moves (array of arrays)
+    //history - state variable array of game's past moves (array of arrays - each turn's squares array)
     const [history, setHistory] = useState( [Array(9).fill(null)] );
     //currentMove - state variable tracking which step (move) the user is currently viewing
     const [currentMove, setCurrentMove] = useState(0); 
     //---
     //xIsNext - boolean var to track X/O turn - first move is 'X' by default (move #0), so X turn on every even move - NOT state var (avoids redundant state)
     const xIsNext = (currentMove % 2 == 0);
-    //currentSquares - array of squares displayed for the current move (based on viewed move, not nec. last squares array in history) - NOT state var
+    //currentSquares - array of squares displayed for the current move (based on *viewed* move, not nec. last squares array in history) - NOT state var
     const currentSquares = history[currentMove];
 
 
@@ -105,20 +105,20 @@ export default function Game() {
     //-receives nextSquares (updated board array) from Board call
     function handlePlay(nextSquares) {
         //update history state variable w/ new squares array
-        //only keep history up until currentMoves view (in case jumped back to previous move and changed play)
+        //only keep history up until currentMove's view (in case jumped back to previous move and changed play)
         const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];  //creates new array containing all items in history up to currentMove + appends nextSquares (spread syntax)
         setHistory(nextHistory);    
         //update currentMove state variable to next value from *new* history (in case jumped back and changed)
         setCurrentMove(nextHistory.length - 1);
-        //updates X/O next turn variable based on currentMove value
+        //above updates X/O-next-turn variable based on currentMove value
     }
 
     //---
-    //jumpTo() - function to jump to (previous) moves in game history - dont by updating currentMove state variable
+    //jumpTo() - function to jump to (previous) moves in game history - done by updating currentMove state variable
     function jumpTo(nextMove) {
-        //update currentMove state variable to update move currently viewed
+        //update currentMove state variable to update move currently viewed (re-render)
         setCurrentMove(nextMove);
-        //X/O turn updated based on currentMove value - since X always first ('next' on move 0), then X is next turn on every even move
+        //X/O-turn updated based on currentMove value - since X always first ('next' on move 0), then X is next turn on every even currentMove
     }
     
     //---
@@ -141,6 +141,7 @@ export default function Game() {
        );
     }
     );
+    //onClick function passed as new arrow function defined to call specific jumpTo w/ param (to avoid immediate call => infinite render from state update)
 
 
     //---
@@ -159,7 +160,8 @@ export default function Game() {
 
 
 //----
-//calculateWinner() - helper function to check for winner of tictactoe
+//calculateWinner() - helper function to check for winner of TicTacToe
+//-called by Board; passed current-viewed squares array
 //-returns [X, O, or null]
 function calculateWinner(squares) {
     //winning combos possible (horizontal, vertical, + diagonal)
