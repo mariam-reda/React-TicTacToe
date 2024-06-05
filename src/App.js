@@ -24,15 +24,30 @@ function Square({ value, onSquareClick }) {
 export default function Board() {
     //state variable + change-function to manage squares' values (X/O) in board - initial default = array of nulls (corresponding to squares)
     const [squares, setSquares] = useState(Array(9).fill(null));
+    //state variable to track X/O turn - first move is 'X' by default
+    const [xIsNext, setXIsNext] = useState(true);
 
+    
     //handleClick() - function to handle click of Squares by updating squares array (state variable) based on clicked square
     //-React re-renders Board when button is clicked, with new value 'X' displayed in clicked square
     function handleClick(i) {
-        const nextSquares = squares.slice();    //creates copy of squares array
-        nextSquares[i] = "X";
-        setSquares(nextSquares);                //React updates state of Board component => re-render it + its child components
+        //check if square already has value (to avoid overwriting => return w/o update/changing turn)
+        if (squares[i]) {
+            return;
+        }
+        //otherwise, update empty square's value
+        const nextSquares = squares.slice();    //creates copy of squares array (for immutable approach)
+        //set value of square based on X/O turn
+        if (xIsNext) {
+            nextSquares[i] = "X";
+        } else {
+            nextSquares[i] = "O";
+        }
+        setSquares(nextSquares);        //React updates state of Board component => re-render it + its child components
+        setXIsNext(!xIsNext);          //update X/O turn to other turn (flip boolean)
     }
     //passed to child as new arrow function defined to call specific handleClick w/ param (to avoid immediate call => infinite render) 
+
 
     return (
     <>
