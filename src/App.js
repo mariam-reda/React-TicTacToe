@@ -20,15 +20,9 @@ function Square({ value, onSquareClick }) {
 
 //Board - component function defined to build tictactoe board using Square components
 //-parent component manages state of all square components through passed props => lifted state from child to parent
+//-Game component manages state of game (Board's parent) through passed props {xIsNext, squares, onPlay}
 //-returns single JSX element, wrapped using Fragment (<>...</>)
-//main function of file (default) accessible outside file (exported)
-export default function Board() {
-    //---
-    //state variable + change-function to manage squares' values (X/O) in board - initial default = array of nulls (corresponding to squares)
-    const [squares, setSquares] = useState(Array(9).fill(null));
-    //state variable to track X/O turn - first move is 'X' by default
-    const [xIsNext, setXIsNext] = useState(true);
-
+function Board({ xIsNext, squares, onPlay }) {
 
     //---
     //handleClick() - function to handle click of Squares by updating squares array (state variable) based on clicked square
@@ -46,8 +40,9 @@ export default function Board() {
         } else {
             nextSquares[i] = "O";
         }
-        setSquares(nextSquares);        //React updates state of Board component => re-render it + its child components
-        setXIsNext(!xIsNext);          //update X/O turn to other turn (flip boolean)
+
+        //call Game's onPlay function, passing it new updated squares array - Game component updates Board on user click + keeps history
+        onPlay(nextSquares);            //React re-render board + update X/O turn (flip boolean)
     }
     //passed to child as new arrow function defined to call specific handleClick w/ param (to avoid immediate call => infinite render) 
 
@@ -86,6 +81,46 @@ export default function Board() {
     </>
     );
 }
+//----
+
+//Game - top-level component to manage game (including history of moves)
+//-controls Board (lifted-up state); updates squares + keeps history, and manages X/O turns 
+//main function of file (default) accessible outside file (exported)
+export default function Game() {
+    //history - state variable array of game past moves (array of arrays)
+    const [history, setHistory] = useState( [Array(9).fill(null)] );
+    //state variable to track X/O turn - first move is 'X' by default
+    const [xIsNext, setXIsNext] = useState(true);
+    //currentSquares - variable array of squares for the current move (last squares array in history) - NOT state var
+    const currentSquares = history[history.length-1];
+
+
+    //---
+    //handlePlay() - function to update the game; updates squares array (like Board's old setSquares() - re-render) + flips X/O turn 
+    //-passed down to Board component as props
+    //-receives nextSquares (updated board array) from Board call
+    function handlePlay(nextSquares) {
+        //update history state variable w/ new squares array
+        setHistory( [...history, nextSquares] );    //creates new array containing all items in history + appends nextSquares (spread syntax)
+        //update X/O next turn state variable (flip boolean)
+        setXIsNext(!xIsNext);
+    }
+
+
+
+    //---
+    //component return
+    return (
+        <div className="game">
+            <div className="game-board">
+                <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+            </div>
+            <div className="game-info">
+                <ol> {/* ...game info... */} </ol>
+            </div>
+        </div>
+    );
+} 
 
 
 //----
