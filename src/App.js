@@ -2,12 +2,24 @@
 //JS file, uses JSX elements (<button>) = JS + HTML tags combo
 //-components use prop className to style through CSS file
 
+//import useState to allow for component state management ("remembering a square was clicked")
+import { useState } from 'react';
+
 
 //Square - component function; defined to return single board square button (reusable component - avoids duplicated code)
-//-uses props to pass child's value from parent component (Board)
-function Square({ value }) {
+//-uses state variable to change value of square (button) on click
+function Square() {
+    //state variable and change-function returned from useState() call (our previous square value prop - initial value null)
+    const [value, setValue] = useState(null);
+
+    //handleClick() - function to handle click of Square instance through onClick props
+    //-React re-renders Square when button is clicked, with new value 'X' displayed
+    function handleClick() {
+        setValue('X');
+    }
+
     return (
-        <button className="square"> {value} </button>
+        <button className="square" onClick={handleClick}> {value} </button>
     );
 }
 
@@ -19,19 +31,19 @@ export default function Board() {
     return (
     <>
         <div className="board-row">
-            <Square value="1" />
-            <Square value="2" />
-            <Square value="3" />
+            <Square />
+            <Square />
+            <Square />
         </div>
         <div className="board-row">
-            <Square value="4" />
-            <Square value="5" />
-            <Square value="6" />
+            <Square />
+            <Square />
+            <Square />
         </div>
         <div className="board-row">
-            <Square value="7" />
-            <Square value="8" />
-            <Square value="9" />
+            <Square />
+            <Square />
+            <Square />
         </div>
     </>
     );
