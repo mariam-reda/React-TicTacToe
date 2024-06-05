@@ -15,6 +15,7 @@ function Square({ value, onSquareClick }) {
         <button className="square" onClick={onSquareClick}> {value} </button>
     );
 }
+//----
 
 
 //Board - component function defined to build tictactoe board using Square components
@@ -22,17 +23,19 @@ function Square({ value, onSquareClick }) {
 //-returns single JSX element, wrapped using Fragment (<>...</>)
 //main function of file (default) accessible outside file (exported)
 export default function Board() {
+    //---
     //state variable + change-function to manage squares' values (X/O) in board - initial default = array of nulls (corresponding to squares)
     const [squares, setSquares] = useState(Array(9).fill(null));
     //state variable to track X/O turn - first move is 'X' by default
     const [xIsNext, setXIsNext] = useState(true);
 
-    
+
+    //---
     //handleClick() - function to handle click of Squares by updating squares array (state variable) based on clicked square
     //-React re-renders Board when button is clicked, with new value 'X' displayed in clicked square
     function handleClick(i) {
-        //check if square already has value (to avoid overwriting => return w/o update/changing turn)
-        if (squares[i]) {
+        //check if square already has value (to avoid overwriting => return w/o update/changing turn) or if someone already won
+        if (squares[i] || calculateWinner(squares)) {
             return;
         }
         //otherwise, update empty square's value
@@ -49,8 +52,22 @@ export default function Board() {
     //passed to child as new arrow function defined to call specific handleClick w/ param (to avoid immediate call => infinite render) 
 
 
+    //---
+    //determine winner of game + display whose turn it is/who won
+    const winner = calculateWinner(squares);
+    let status;
+    if (winner) {
+        status = "Winner: " + winner;
+    } else {
+        status = "Next player: " + (xIsNext ? "X" : "O");
+    }
+
+
+    //---
+    //component return
     return (
     <>
+        <div className="status"> {status} </div>
         <div className="board-row">
             <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
             <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -69,4 +86,26 @@ export default function Board() {
     </>
     );
 }
-  
+
+
+//----
+//calculateWinner() - helper function to check for winner of tictactoe
+//-returns [X, O, or null]
+function calculateWinner(squares) {
+    //winning combos possible (horizontal, vertical, + diagonal)
+    const winningLines = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ];
+
+    //check if a winning combo line has been populated by a player (cell has value + cell's values all match)
+    for (let i = 0; i < winningLines.length; i++) {
+        const [a, b, c] = winningLines[i];     //copy indices in a winning combo
+        if (squares[a] && squares[a] == squares[b] && squares[a] == squares[c]) {
+            return squares[a];
+        }
+    }
+    //otherwise, return null
+    return null;
+} 
