@@ -106,17 +106,42 @@ export default function Game() {
         setXIsNext(!xIsNext);
     }
 
+    //---
+    //jumpTo() - function to jump to (previous) moves in game history
+    function jumpTo(nextMove) {
+        //... jump to move passed ...
+    }
+    
+    //---
+    //moves - maps game moves (history) to list of buttons (per move), allowing to jump to past moves
+    //-squares = mapped to an array element in history; move = mapped to array index in history
+    const moves = history.map( (squares, move) => {
+        //display description for button's move
+        let description;
+        if (move > 0) {
+            description = "Go to move #" + move;
+        } else {
+            description = "Go to game start";
+        }
+        //return listed button element w/ jump onclick handler
+        return (
+            <li>
+                <button onClick={() => jumpTo(move)}> {description} </button>
+            </li>
+       );
+    }
+    );
 
 
     //---
-    //component return
+    //component return - game board, and game info (history) = array list of React button elements (to jump to past moves)
     return (
         <div className="game">
             <div className="game-board">
                 <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
             </div>
             <div className="game-info">
-                <ol> {/* ...game info... */} </ol>
+                <ol> {moves} </ol>
             </div>
         </div>
     );
