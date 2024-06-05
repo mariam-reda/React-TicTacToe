@@ -114,7 +114,7 @@ export default function Game() {
     
     //---
     //moves - maps game moves (history) to list of buttons (per move), allowing to jump to past moves
-    //-squares = mapped to an array element in history; move = mapped to array index in history
+    //--squares = mapped to an array element in history; move = mapped to array index in history
     const moves = history.map( (squares, move) => {
         //display description for button's move
         let description;
@@ -123,9 +123,10 @@ export default function Game() {
         } else {
             description = "Go to game start";
         }
-        //return listed button element w/ jump onclick handler
+        //return listed button element w/ jump onclick handler (w/ unique key property for each child in React list = move's unique sequence no.)
+        //--moves will never be re-ordered, deleted, or inserted in middle => safe to use move index as key
         return (
-            <li>
+            <li key={move}>
                 <button onClick={() => jumpTo(move)}> {description} </button>
             </li>
        );
