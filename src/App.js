@@ -90,10 +90,11 @@ export default function Game() {
     
     //history - state variable array of game past moves (array of arrays)
     const [history, setHistory] = useState( [Array(9).fill(null)] );
-    //state variable to track X/O turn - first move is 'X' by default
-    const [xIsNext, setXIsNext] = useState(true);
     //currentMove - state variable tracking which step (move) the user is currently viewing
     const [currentMove, setCurrentMove] = useState(0); 
+    //---
+    //xIsNext - boolean var to track X/O turn - first move is 'X' by default (move #0), so X turn on every even move - NOT state var (avoids redundant state)
+    const xIsNext = (currentMove % 2 == 0);
     //currentSquares - array of squares displayed for the current move (based on viewed move, not nec. last squares array in history) - NOT state var
     const currentSquares = history[currentMove];
 
@@ -109,8 +110,7 @@ export default function Game() {
         setHistory(nextHistory);    
         //update currentMove state variable to next value from *new* history (in case jumped back and changed)
         setCurrentMove(nextHistory.length - 1);
-        //update X/O next turn state variable (flip boolean)
-        setXIsNext(!xIsNext);
+        //updates X/O next turn variable based on currentMove value
     }
 
     //---
@@ -118,8 +118,7 @@ export default function Game() {
     function jumpTo(nextMove) {
         //update currentMove state variable to update move currently viewed
         setCurrentMove(nextMove);
-        //make sure X/O turn is correct - since X always first ('next' on move 0), then X is next turn on every even move
-        setXIsNext( nextMove % 2 == 0 );    //if nextMove is even, X is next
+        //X/O turn updated based on currentMove value - since X always first ('next' on move 0), then X is next turn on every even move
     }
     
     //---
