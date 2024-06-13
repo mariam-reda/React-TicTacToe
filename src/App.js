@@ -57,27 +57,33 @@ function Board({ xIsNext, squares, onPlay }) {
         status = "Next player: " + (xIsNext ? "X" : "O");
     }
 
+    
+    //---
+    //create Board layout using loops to make squares (instead of hardcoding)
+    //-when created in loop, each item needs a key (=>sqVal calculation below)
+    function buildBoard() {
+        let tempBoard = [];
+        //loop for each row in board
+        for (let rowI = 0; rowI < 3; rowI++) {
+            let tempBoardRow = [];
+            //loop for each square in a row
+            for (let colJ = 0; colJ < 3; colJ++) {
+                let sqVal = (rowI * 3) + colJ;      //key, value, and onClick
+                tempBoardRow.push( <Square key={sqVal} value={squares[sqVal]} onSquareClick={() => handleClick(sqVal)} /> );
+            }
+            tempBoard.push( <div key={rowI} className="board-row"> {tempBoardRow} </div> );
+        }
+        return tempBoard;
+    }
+
+    const boardSquaresLayout = buildBoard();
 
     //---
     //component return
     return (
     <>
         <div className="status"> {status} </div>
-        <div className="board-row">
-            <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-            <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-            <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
-        </div>
-        <div className="board-row">
-            <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-            <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-            <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
-        </div>
-        <div className="board-row">
-            <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-            <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-            <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
-        </div>
+        { boardSquaresLayout }
     </>
     );
 }
