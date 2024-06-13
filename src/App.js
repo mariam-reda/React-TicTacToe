@@ -98,6 +98,8 @@ export default function Game() {
     const [history, setHistory] = useState( [Array(9).fill(null)] );
     //currentMove - state variable tracking which step (move) the user is currently viewing
     const [currentMove, setCurrentMove] = useState(0); 
+    //isAscendingOrder - state variable toggles if (list) moves are sorted in ascending or descending order (tracks display state)
+    const [isAscendingOrder, setAscendingOrder] = useState(true);
     //---
     //xIsNext - boolean var to track X/O turn - first move is 'X' by default (move #0), so X turn on every even move - NOT state var (avoids redundant state)
     const xIsNext = (currentMove % 2 == 0);
@@ -127,6 +129,13 @@ export default function Game() {
         //X/O-turn updated based on currentMove value - since X always first ('next' on move 0), then X is next turn on every even currentMove
     }
     
+    //---
+    //toggleAscendingOrder() - function to switch from ascending/descending order of moves (list)
+    function toggleAscendingOrder() {
+        //update isAscendingOrder state variable to opposite state (=> re-render)
+        setAscendingOrder(!isAscendingOrder);
+    }
+
     //---
     //moves - maps game moves (history) to list of buttons (per move), allowing to jump to past moves
     //--squares = mapped to an array element in history; move = mapped to array index in history
@@ -168,8 +177,16 @@ export default function Game() {
             <div className="game-board">
                 <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
             </div>
+            
             <div className="game-info">
-                <ol> {moves} </ol>
+
+                <div className="game-moves-order">
+                    <button onClick={() => toggleAscendingOrder()}> Sort moves in {isAscendingOrder ? "Descending" : "Ascending"} Order </button>
+                    <h6> Current Display: {isAscendingOrder ? "Ascending" : "Descending"} </h6>
+                </div>
+
+                {/* display moves list based on ascending/descending order selection */}
+                <ol> {isAscendingOrder ? moves : moves.reverse()} </ol>
             </div>
         </div>
     );
