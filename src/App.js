@@ -10,9 +10,10 @@ import { useState } from 'react';
 //-uses props value passed from parent (Board) to determine state (empty/X/O)
 //-uses function prop passed down from parent, called when square is clicked, to update parent on which square is clicked
 //--=> child asks parent component to update state of board 
-function Square({ value, onSquareClick }) {
+//-specialStyle prop used to highlight winning squares (set by Board - highlights square's background)
+function Square({ value, onSquareClick, specialStyle }) {
     return (
-        <button className="square" onClick={onSquareClick}> {value} </button>
+        <button className="square" onClick={onSquareClick} style={specialStyle}> {value} </button>
     );
 }
 //----
@@ -49,12 +50,19 @@ function Board({ xIsNext, squares, onPlay }) {
 
     //---
     //determine winner of game + display whose turn it is/who won
-    const winner = calculateWinner(squares);
+    const winner = calculateWinner(squares);        //winner = {winningPlayer, winningSquares}, or null
     let status;
     if (winner) {
-        status = "Winner: " + winner;
+        status = "Winner: " + winner.winningPlayer + "!";
     } else {
-        status = "Next player: " + (xIsNext ? "X" : "O");
+        //if no winner yet, check if board is full (no more empty spaces)
+        if (!squares.includes(null)) {
+            status = "No more moves! It's a Draw!"
+        }
+        //no winner yet, but board is not full => next turn
+        else {
+            status = "Next player: " + (xIsNext ? "X" : "O");
+        }
     }
 
     
@@ -68,13 +76,16 @@ function Board({ xIsNext, squares, onPlay }) {
             let tempBoardRow = [];
             //loop for each square in a row
             for (let colJ = 0; colJ < 3; colJ++) {
-                let sqVal = (rowI * 3) + colJ;      //key, value, and onClick
-                tempBoardRow.push( <Square key={sqVal} value={squares[sqVal]} onSquareClick={() => handleClick(sqVal)} /> );
+                let sqVal = (rowI * 3) + colJ;      //key, value, and onClick (matches square arr index)
+                //check if winner => if so, highlight winning squares (based on val) (otherwise, null if not winning square or no winner yet)
+                let sqWin = winner ? (winner.winningSquares.includes(sqVal) ? {background:"#f9ff45"} : null) : null;
+                tempBoardRow.push( <Square key={sqVal} value={squares[sqVal]} onSquareClick={() => handleClick(sqVal)} specialStyle={sqWin} /> );
             }
             tempBoard.push( <div key={rowI} className="board-row"> {tempBoardRow} </div> );
         }
         return tempBoard;
     }
+    //-also used for board when re-rendering
 
     const boardSquaresLayout = buildBoard();
 
@@ -177,7 +188,7 @@ export default function Game() {
             <div className="game-board">
                 <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
             </div>
-            
+
             <div className="game-info">
 
                 <div className="game-moves-order">
@@ -196,7 +207,7 @@ export default function Game() {
 //----
 //calculateWinner() - helper function to check for winner of TicTacToe
 //-called by Board; passed current-viewed squares array
-//-returns [X, O, or null]
+//-returns winning player [X, O, or null], and if winner found also returns winning squares (index array)
 function calculateWinner(squares) {
     //winning combos possible (horizontal, vertical, + diagonal)
     const winningLines = [
@@ -209,7 +220,11 @@ function calculateWinner(squares) {
     for (let i = 0; i < winningLines.length; i++) {
         const [a, b, c] = winningLines[i];     //copy indices in a winning combo
         if (squares[a] && squares[a] == squares[b] && squares[a] == squares[c]) {
-            return squares[a];
+            //return winning player, and squares line (index) they won with
+            return {
+                winningPlayer: squares[a],
+                winningSquares: winningLines[i]
+            };
         }
     }
     //otherwise, return null
