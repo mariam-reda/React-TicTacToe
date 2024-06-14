@@ -53,12 +53,15 @@ function Board({ xIsNext, squares, onPlay }) {
     //determine winner of game + display whose turn it is/who won
     const winner = calculateWinner(squares);        //winner = {winningPlayer, winningSquares}, or null
     let status;
+    let statusSpecialStyle;       //-special style of status based on win or draw (for extra visual clue)
     if (winner) {
         status = "Winner: " + winner.winningPlayer + "!";
+        statusSpecialStyle = "status-win";
     } else {
         //if no winner yet, check if board is full (no more empty spaces)
         if (!squares.includes(null)) {
             status = "No more moves! It's a Draw!"
+            statusSpecialStyle = "status-draw";
         }
         //no winner yet, but board is not full => next turn
         else {
@@ -94,7 +97,7 @@ function Board({ xIsNext, squares, onPlay }) {
     //component return
     return (
     <>
-        <div className="status"> {status} </div>
+        <div className={"status " + statusSpecialStyle} > {status} </div>
         { boardSquaresLayout }
     </>
     );
