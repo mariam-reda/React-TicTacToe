@@ -43,7 +43,8 @@ function Board({ xIsNext, squares, onPlay }) {
         }
 
         //call Game's onPlay function, passing it new updated squares array - Game component updates Board on user click + keeps history
-        onPlay(nextSquares);            //React re-render board + update X/O turn (flip boolean)
+        //-onPlay also takes updated square id (i) to track (row,col) specific move history
+        onPlay(nextSquares, i);            //React re-render board + update X/O turn (flip boolean)
     }
     //passed to child as new arrow function defined to call specific handleClick w/ param (to avoid immediate call => infinite render) 
 
@@ -111,6 +112,8 @@ export default function Game() {
     const [currentMove, setCurrentMove] = useState(0); 
     //isAscendingOrder - state variable toggles if (list) moves are sorted in ascending or descending order (tracks display state)
     const [isAscendingOrder, setAscendingOrder] = useState(true);
+    //movesCoordinates - state variable array of (row,col) moves history (order of user-clicked plays)
+    const [movesCoordinates, setMovesCoordinates] = useState(Array(9).fill(""));
     //---
     //xIsNext - boolean var to track X/O turn - first move is 'X' by default (move #0), so X turn on every even move - NOT state var (avoids redundant state)
     const xIsNext = (currentMove % 2 == 0);
@@ -122,7 +125,8 @@ export default function Game() {
     //handlePlay() - function to update the game; updates squares array (like Board's old setSquares() - re-render) + flips X/O turn 
     //-passed down to Board component as props
     //-receives nextSquares (updated board array) from Board call
-    function handlePlay(nextSquares) {
+    //-receives clickedSquare (id of square clicked for move) from Board call
+    function handlePlay(nextSquares, clickedSquare) {
         //update history state variable w/ new squares array
         //only keep history up until currentMove's view (in case jumped back to previous move and changed play)
         const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];  //creates new array containing all items in history up to currentMove + appends nextSquares (spread syntax)
@@ -130,6 +134,14 @@ export default function Game() {
         //update currentMove state variable to next value from *new* history (in case jumped back and changed)
         setCurrentMove(nextHistory.length - 1);
         //above updates X/O-next-turn variable based on currentMove value
+
+        //add move coordinates to history list based on clicked square's id
+        let moveRow = Math.floor(clickedSquare / 3);     //int division (floored) of move # by 3 gives row number
+        let moveCol = clickedSquare % 3;                 //mod (remainder) of move # by 3 gives column number
+        let newMoveCoordinates = "(" + moveRow + "," + moveCol + ")";
+        const newCoordinatesArr = [...movesCoordinates.slice(0, currentMove + 1), newMoveCoordinates];
+        //update state variable to new coordinates history array (in case jumped back and changed) 
+        setMovesCoordinates(newCoordinatesArr);
     }
 
     //---
@@ -151,21 +163,28 @@ export default function Game() {
     //moves - maps game moves (history) to list of buttons (per move), allowing to jump to past moves
     //--squares = mapped to an array element in history; move = mapped to array index in history
     const moves = history.map( (squares, move) => {
-        //display description for button's move
+        //display description for button's move -include moves location (row,col) format
         let description;
         if (move > 0) {
-            description = "Go to move #" + move;
+            description = "Go to move #" + move + " - Played: " + movesCoordinates[move];
         } else {
             description = "Go to game start";
         }
 
+        //build listed move (component as seen in moves list)
+        //-default -> not current move - return button w/ onClick to jump to move
+        let listedMove = (<button onClick={() => jumpTo(move)}> {description} </button>);
+
         //for current move only, display "You are at move #.." instead of a button
-        let listedMove;
         if (move == currentMove) {          //current move - return text, no button
-            listedMove = <div> {"You are at move #" + move} </div>
-        }
-        else {                              //not current move - return button w/ onClick to jump to move
-            listedMove = <button onClick={() => jumpTo(move)}> {description} </button>;
+            let currentMoveDescription;
+            if (move == 0) {     //jumped back to start of game - no move played (will print undefined if uses movesCoordinates[move])
+                currentMoveDescription = "You are at move #" + move + " - Game start";
+            } else {           //current move # listed as text, with coordinate for move played
+                currentMoveDescription ="You are at move #" + move + " - Played: " + movesCoordinates[move];
+            }
+            //alt: let currentMoveDescription = "You are at move #" + move + ( (move == 0) ? " - Game start" : (" - Played: " + movesCoordinates[move])  );
+            listedMove = (<div> <b> {currentMoveDescription} </b> </div>);
         }
 
         //return listed button element w/ jump onclick handler (w/ unique key property for each child in React list = move's unique sequence no.)
