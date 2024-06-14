@@ -51,6 +51,10 @@ ul {
   padding-inline-start: 20px;
 }
 
+li {
+  padding-bottom: 3px;
+}
+
 .square {
   background: #fff;
   border: 1px solid #999;
@@ -75,6 +79,7 @@ ul {
 .status {
   margin-bottom: 10px;
 }
+
 .game {
   display: flex;
   flex-direction: row;
@@ -83,4 +88,13 @@ ul {
 .game-info {
   margin-left: 20px;
 }
-  
+
+.status-draw {
+  color: orange;
+  font-style: italic;
+}
+
+.status-win {
+  color: green;
+  font-weight: bold;
+}
